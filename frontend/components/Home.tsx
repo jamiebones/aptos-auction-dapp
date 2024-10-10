@@ -63,6 +63,7 @@ function Home() {
 
           {/* Second Section */}
           <div className="flex-2 bg-white shadow-lg rounded-lg p-6 mx-1">
+
             {auctions && <AuctionList auctionDataList={auctions} />}
           </div>
         </div>

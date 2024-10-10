@@ -150,7 +150,7 @@ module auction::auction_contract {
                 highest_bidder: option::none(),
                 highest_bid: option::none(),
                 auction_end_time: auction_end_date,
-                created_date: timestamp::now_seconds(),
+                created_date: timestamp::now_microseconds(),
                 auction_ended: false,
                 pending_returns: smart_table::new<address, u64>(),
                 auction_description_url,
@@ -188,7 +188,7 @@ module auction::auction_contract {
            abort(ERR_OBJECT_DONT_EXIST)
         };
         let auction = borrow_global_mut<AuctionMetadata>(auction_address);
-        if ( timestamp::now_seconds() > auction.auction_end_time ){
+        if ( timestamp::now_microseconds() > auction.auction_end_time ){
           abort(ERR_AUCTION_TIME_LAPSED)
         };
         if ( auction.auction_ended ){
@@ -265,7 +265,7 @@ module auction::auction_contract {
             abort(ERR_OBJECT_DONT_EXIST)
         };
         let auction = borrow_global_mut<AuctionMetadata>(auction_address);
-        if ( timestamp::now_seconds() < auction.auction_end_time ){
+        if ( timestamp::now_microseconds() < auction.auction_end_time ){
             abort(ERR_AUCTION_TIME_NOT_LAPSED)
         };
         if ( auction.auction_ended ){
@@ -373,7 +373,7 @@ module auction::auction_contract {
     }
     
     fun get_active_auction(auction: AuctionDataDetails):bool{
-        if ( auction.auction_end_time > timestamp::now_seconds() && auction.auction_ended == false ){
+        if ( auction.auction_end_time > timestamp::now_microseconds() && auction.auction_ended == false ){
             return true
         };
         return false
@@ -437,13 +437,13 @@ module auction::auction_contract {
             creator,
             auction_brief_description,
             auction_description_url,
-            timestamp::now_seconds(),
+            timestamp::now_microseconds(),
         );
         create_new_auction(
             creator,
             auction_brief_description,
             auction_description_url,
-            timestamp::now_seconds(),
+            timestamp::now_microseconds(),
         );
         let creator_address = signer::address_of(creator);
         let owner_auction = borrow_global<OwnerAuctions>(creator_address);
@@ -468,7 +468,7 @@ module auction::auction_contract {
             creator,
             auction_brief_description,
             auction_description_url,
-            timestamp::now_seconds(),
+            timestamp::now_microseconds(),
         );
         //get the created auction object
         let auction_vector_ref = borrow_global<Registry>(@auction).auction_objects;

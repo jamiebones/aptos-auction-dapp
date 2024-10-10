@@ -21,7 +21,7 @@ const CreateAuction = () => {
     }
     try {
         const date = new Date(auctionDate);
-        const endOfAuction = date.getTime();
+        const endOfAuction = date.getTime() * 1000; //convert to microseconds
         const committedTransaction = await signAndSubmitTransaction(
         createNewAuction({
             auction_brief_description: auctionDescription,
