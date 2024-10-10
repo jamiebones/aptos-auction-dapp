@@ -131,12 +131,12 @@ export const AuctionComponent = () => {
 
           <div className="col-span-1">
             <h3 className="text-lg font-semibold">Auction End Time</h3>
-            <p className="text-gray-600">{auctionData && formatDate(auctionData.auction_end_time / 1000)}</p>
+            <p className="text-gray-600">{auctionData && formatDate(auctionData.auction_end_time / 1_000_000)}</p>
           </div>
 
           <div className="col-span-1">
             <h3 className="text-lg font-semibold">Created Date</h3>
-            <p className="text-gray-600">{auctionData && formatDate(auctionData.created_date)}</p>
+            <p className="text-gray-600">{auctionData && formatDate(auctionData.created_date / 1_000_000)}</p>
           </div>
 
           <div className="col-span-1">
