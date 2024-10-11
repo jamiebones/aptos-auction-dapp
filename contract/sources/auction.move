@@ -62,7 +62,6 @@ module auction::auction_contract {
         auction_end_time: u64,
         created_date: u64,
         auction_ended: bool,
-        pending_returns: SmartTable<address, u64>,
         auction_description_url: String,
         bidders: SmartTable<address, u64>
     }
@@ -72,11 +71,6 @@ module auction::auction_contract {
         auction_objects: vector<Object<AuctionMetadata>>,
     }
 
-
-    // //#[resource_group_member(group = aptos_framework::object::ObjectGroup)]
-    // struct ContractWallet has key {
-    //     //owner_ref: Object<Object>,
-    // }
 
     struct AuctionBid has store, drop, copy{
         auction_address: address,
@@ -126,7 +120,6 @@ module auction::auction_contract {
                 auction_objects: vector::empty<Object<AuctionMetadata>>()
             }
         )
-
     }
 
 
@@ -136,7 +129,6 @@ module auction::auction_contract {
                            auction_description_url: String,
                            auction_end_date: u64) acquires OwnerAuctions, Registry {
 
-        //create a normal object ownwed by the contract
         let auction_creator_address = signer::address_of(auction_creator);
         let obj_constructor_ref = object::create_object(auction_creator_address);
         let obj_constructor_signer = object::generate_signer(&obj_constructor_ref);
@@ -152,7 +144,6 @@ module auction::auction_contract {
                 auction_end_time: auction_end_date,
                 created_date: timestamp::now_microseconds(),
                 auction_ended: false,
-                pending_returns: smart_table::new<address, u64>(),
                 auction_description_url,
                 bidders: smart_table::new<address, u64>()
             }
@@ -207,12 +198,12 @@ module auction::auction_contract {
         auction.highest_bid = option::some(bid_amount);
         let bidder_address = signer::address_of(bidder);
         auction.highest_bidder = option::some(bidder_address);
-        let sm_table_returns = &mut auction.pending_returns;
+        let sm_table_bidders = &mut auction.bidders;
         //check if the address is on the smart table
         let added_bid_amount = 0;
-        if ( smart_table::contains(sm_table_returns, bidder_address)){
+        if ( smart_table::contains(sm_table_bidders, bidder_address)){
             //return the old amount
-            let old_amount = smart_table::borrow(sm_table_returns, bidder_address);
+            let old_amount = smart_table::borrow(sm_table_bidders, bidder_address);
             //get the object that owns the money
             let bids_vector = &mut borrow_global_mut<UserAuctionBid>(bidder_address).bids;
             //removed the old value
@@ -223,9 +214,7 @@ module auction::auction_contract {
                 auction_address
             });
         };
-
-        smart_table::upsert(&mut auction.bidders, bidder_address, bid_amount);
-        smart_table::upsert(sm_table_returns, bidder_address, bid_amount);
+        smart_table::upsert(sm_table_bidders, bidder_address, bid_amount);
         if ( added_bid_amount > 0 ){ //we have previously transferred, so we topping up our bid
             aptos_account::transfer(bidder, resource_account_address, added_bid_amount);
         } else { //first time transferring
